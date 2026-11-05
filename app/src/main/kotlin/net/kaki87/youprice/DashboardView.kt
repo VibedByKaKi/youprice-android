@@ -97,7 +97,7 @@ private fun LinearLayout.invoices(list: org.json.JSONArray) {
 private fun LinearLayout.orderItem(item: JSONObject, line: Line?) {
     val info = line?.info
     val st = line?.status
-    addView(text("${item.str("productName")} · ${item.str("operateur")}", 16f, bold = true))
+    addView(context.text("${item.str("productName")} · ${item.str("operateur")}", 16f, bold = true))
     row("Numéro", item.str("phoneNumber"))
     row("Commande", item.str("status"))
     row("État de la ligne", info?.str("etatLigne") ?: item.str("etatLigne"))
