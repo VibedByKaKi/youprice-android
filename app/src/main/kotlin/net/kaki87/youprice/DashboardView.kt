@@ -72,7 +72,8 @@ fun Context.dashboardView(d: Dashboard) = column().apply {
             row("Création", t.str("dtCreation"))
             row("État", t.str("etat"))
         }
-        note("Contact : support@youprice.fr")
+        note("Contact (appui long pour copier) :")
+        addView(emailLink("support@youprice.fr"))
     })
 }
 

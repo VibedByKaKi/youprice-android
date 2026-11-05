@@ -57,6 +57,7 @@ class MainActivity : Activity() {
 
         setContentView(ScrollView(this).apply {
             setBackgroundColor(Palette.BG)
+            fitSystemBars()
             addView(column(24).apply {
                 gravity = Gravity.CENTER_HORIZONTAL
                 addView(text("YouPrice", 28f, Palette.ACCENT, bold = true))
@@ -69,14 +70,15 @@ class MainActivity : Activity() {
     private fun showDashboard() {
         val content = column()
         val status = text("Chargement…", 14f, Palette.MUTED).apply { setPadding(dp(16), dp(16), dp(16), 0) }
-        val refresh = Button(this).apply { text = "Actualiser" }
-        val logout = Button(this).apply { text = "Déconnexion" }
+        val refresh = iconButton(R.drawable.ic_refresh, "Actualiser")
+        val logout = iconButton(R.drawable.ic_logout, "Déconnexion")
         refresh.setOnClickListener { load(content, status) }
         logout.setOnClickListener { session.clearToken(); showLogin() }
 
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Palette.BG)
+            fitSystemBars()
             addView(LinearLayout(context).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(dp(16), dp(8), dp(8), dp(8))

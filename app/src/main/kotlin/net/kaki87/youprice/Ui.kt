@@ -1,6 +1,16 @@
 package net.kaki87.youprice
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.net.Uri
+import android.os.Build
+import android.widget.ImageButton
+import android.widget.Toast
+import android.view.WindowInsets
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -62,10 +72,11 @@ fun LinearLayout.row(label: String, value: String?) {
     addView(LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
         setPadding(0, context.dp(4), 0, 0)
-        addView(context.text(label, 13f, Palette.MUTED).apply { layoutParams = LinearLayout.LayoutParams(0, -2, 0.4f) })
+        // Without a label the value takes the full width instead of leaving an empty column.
+        if (label.isNotEmpty()) addView(context.text(label, 13f, Palette.MUTED).apply { layoutParams = LinearLayout.LayoutParams(0, -2, 0.4f) })
         addView(context.text(value, 14f).apply {
             setTextIsSelectable(true)
-            layoutParams = LinearLayout.LayoutParams(0, -2, 0.6f)
+            layoutParams = LinearLayout.LayoutParams(0, -2, if (label.isNotEmpty()) 0.6f else 1f)
         })
     })
 }
@@ -89,3 +100,47 @@ fun date(iso: String): String =
     Regex("""(\d{4})-(\d{2})-(\d{2})""").find(iso)?.destructured?.let { (y, m, d) -> "$d/$m/$y" } ?: iso
 
 fun euro(v: Double) = String.format(Locale.FRANCE, "%.2f €", v)
+
+fun Context.iconButton(icon: Int, description: String) = ImageButton(this).apply {
+    setImageResource(icon)
+    contentDescription = description
+    imageTintList = ColorStateList.valueOf(Palette.ACCENT)
+    val ripple = android.util.TypedValue()
+    theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ripple, true)
+    setBackgroundResource(ripple.resourceId)
+    layoutParams = LinearLayout.LayoutParams(dp(48), dp(48))
+}
+
+/** Pads the view by the status bar, navigation bar and keyboard so content is not drawn under them. */
+fun View.fitSystemBars() {
+    setOnApplyWindowInsetsListener { v, insets ->
+        if (Build.VERSION.SDK_INT >= 30) {
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+        } else {
+            @Suppress("DEPRECATION")
+            v.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+        }
+        insets
+    }
+}
+
+/** An email address that opens the mail app on tap and is copied on long press. */
+fun Context.emailLink(address: String) = text(address, 14f, Palette.ACCENT).apply {
+    paint.isUnderlineText = true
+    setPadding(0, dp(8), 0, dp(8))
+    setOnClickListener {
+        try {
+            startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$address")))
+        } catch (e: ActivityNotFoundException) {
+            copy(address)
+        }
+    }
+    setOnLongClickListener { copy(address); true }
+}
+
+private fun Context.copy(value: String) {
+    getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("email", value))
+    // Android 13 and later show their own confirmation.
+    if (Build.VERSION.SDK_INT < 33) Toast.makeText(this, "Adresse copiée", Toast.LENGTH_SHORT).show()
+}
