@@ -11,11 +11,24 @@ import android.widget.TextView
 import java.util.Locale
 
 object Palette {
-    const val BG = 0xFFF4F1FA.toInt()
-    const val CARD = Color.WHITE
-    const val ACCENT = 0xFF5B2EBF.toInt()
-    const val TEXT = 0xFF1E1B2E.toInt()
-    const val MUTED = 0xFF6B6880.toInt()
+    var BG = 0
+    var CARD = 0
+    var ACCENT = 0
+    var TEXT = 0
+    var MUTED = 0
+    var ERROR = 0
+    var DIVIDER = 0
+
+    /** Reads the light or dark colors that match the current configuration. */
+    fun init(c: Context) {
+        BG = c.getColor(R.color.bg)
+        CARD = c.getColor(R.color.card)
+        ACCENT = c.getColor(R.color.accent)
+        TEXT = c.getColor(R.color.text)
+        MUTED = c.getColor(R.color.muted)
+        ERROR = c.getColor(R.color.error)
+        DIVIDER = c.getColor(R.color.divider)
+    }
 }
 
 fun Context.dp(v: Int) = (v * resources.displayMetrics.density).toInt()
@@ -67,7 +80,7 @@ fun LinearLayout.note(s: String) {
 
 fun LinearLayout.divider() {
     addView(View(context).apply {
-        setBackgroundColor(0x1F000000)
+        setBackgroundColor(Palette.DIVIDER)
         layoutParams = LinearLayout.LayoutParams(-1, 1).apply { topMargin = context.dp(10) }
     })
 }

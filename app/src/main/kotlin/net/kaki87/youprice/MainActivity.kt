@@ -17,6 +17,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Palette.init(this)
         session = Session(this)
         api = Api(session)
         if (session.token != null) showDashboard() else showLogin()
@@ -27,8 +28,8 @@ class MainActivity : Activity() {
     private fun showLogin(error: String? = null) {
         val email = field("Email", InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).apply { setText(session.email) }
         val password = field("Mot de passe", InputType.TYPE_TEXT_VARIATION_PASSWORD)
-        val code = field("Code de confirmation", InputType.TYPE_CLASS_NUMBER).apply { visibility = View.GONE }
-        val message = text(error ?: "", 13f, 0xFFB00020.toInt())
+        val code = field("Code de confirmation", InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS).apply { visibility = View.GONE }
+        val message = text(error ?: "", 13f, Palette.ERROR)
         val submit = Button(this).apply { text = "Se connecter" }
 
         submit.setOnClickListener {
@@ -111,7 +112,8 @@ class MainActivity : Activity() {
 
     private fun field(hint: String, type: Int) = EditText(this).apply {
         this.hint = hint
-        inputType = if (type == InputType.TYPE_CLASS_NUMBER) type else InputType.TYPE_CLASS_TEXT or type
+        // Single-line must be set before the input type, or it replaces the password masking.
         isSingleLine = true
+        inputType = InputType.TYPE_CLASS_TEXT or type
     }
 }
