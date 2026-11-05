@@ -15,8 +15,20 @@ fun Context.dashboardView(d: Dashboard) = column().apply {
         row("Titulaire du compte", c.str("accountHolder"))
         row("Banque", c.str("bankName"))
         row("IBAN", c.str("iban"))
-        c.obj("billingAddress")?.let { subtitle("Adresse de facturation"); address(it) }
-        c.obj("deliveryAddress")?.let { subtitle("Adresse de livraison"); address(it) }
+        val addresses = listOfNotNull(
+            c.obj("billingAddress")?.let { "Adresse de facturation" to it },
+            c.obj("deliveryAddress")?.let { "Adresse de livraison" to it },
+        )
+        if (addresses.isNotEmpty()) addView(LinearLayout(context).apply {
+            addresses.forEachIndexed { i, (title, a) ->
+                addView(context.column().apply {
+                    if (i < addresses.lastIndex) setPadding(0, 0, context.dp(8), 0)
+                    subtitle(title)
+                    address(a)
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                })
+            }
+        })
     })
 
     addView(card("Mon forfait") {
@@ -72,8 +84,11 @@ fun Context.dashboardView(d: Dashboard) = column().apply {
             row("Création", t.str("dtCreation"))
             row("État", t.str("etat"))
         }
-        note("Contact (appui long pour copier) :")
-        addView(emailLink("support@youprice.fr"))
+        addView(LinearLayout(context).apply {
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(context.text("Contact", 13f, Palette.MUTED).apply { layoutParams = LinearLayout.LayoutParams(0, -2, 0.4f) })
+            addView(context.emailLink("support@youprice.fr").apply { layoutParams = LinearLayout.LayoutParams(0, -2, 0.6f) })
+        })
     })
 }
 
