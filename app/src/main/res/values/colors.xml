@@ -7,4 +7,5 @@
     <color name="muted">#6B6880</color>
     <color name="error">#B00020</color>
     <color name="divider">#1F000000</color>
+    <color name="ic_launcher_background">#0A71B8</color>
 </resources>

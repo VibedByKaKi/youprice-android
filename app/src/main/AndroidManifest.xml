@@ -5,6 +5,7 @@
 
     <application
         android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
         android:label="YouPrice"
         android:theme="@style/Theme.App"
         android:usesCleartextTraffic="false">
