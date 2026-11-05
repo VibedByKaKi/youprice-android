@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val releaseKeystore = System.getenv("KEYSTORE_FILE")?.let(::file)?.takeIf { it.exists() }
+
 android {
     namespace = "net.kaki87.youprice"
     compileSdk = 35
@@ -15,13 +17,24 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS") ?: "soulbrowser"
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Debug key so the CI APK installs without a private keystore.
-            signingConfig = signingConfigs.getByName("debug")
+            // The release key comes from CI secrets. Without them, fall back to the debug key.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 
