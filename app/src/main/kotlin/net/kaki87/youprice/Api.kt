@@ -1,18 +1,27 @@
 package net.kaki87.youprice
 
 import android.content.Context
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
+private const val KEY_ALIAS = "youprice_password"
 private const val BASE = "https://api.youprice.fr/Vitrine"
 
 class ApiException(val status: Int, message: String) : Exception(message)
 
-/** Token and trusted-device key, kept in app-private storage. The password is never stored. */
+/** Token and trusted-device key, kept in app-private storage. The password is stored only when the user ticks "remember", encrypted with an Android Keystore key. */
 class Session(context: Context) {
     private val prefs = context.getSharedPreferences("session", Context.MODE_PRIVATE)
 
@@ -23,6 +32,38 @@ class Session(context: Context) {
     var publicKey: String
         get() = prefs.getString("publicKey", "") ?: ""
         set(v) = prefs.edit().putString("publicKey", v).apply()
+
+    /** Null when no password is saved or the Keystore key can no longer decrypt it. */
+    var savedPassword: String?
+        get() = prefs.getString("password", null)?.let { runCatching { decrypt(it) }.getOrNull() }
+        set(v) {
+            if (v == null) prefs.edit().remove("password").apply()
+            else prefs.edit().putString("password", encrypt(v)).apply()
+        }
+
+    private fun key(): SecretKey {
+        val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        (store.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
+        val spec = KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .build()
+        return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            .apply { init(spec) }.generateKey()
+    }
+
+    private fun encrypt(plain: String): String {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding").apply { init(Cipher.ENCRYPT_MODE, key()) }
+        val data = cipher.iv + cipher.doFinal(plain.toByteArray())
+        return Base64.encodeToString(data, Base64.NO_WRAP)
+    }
+
+    private fun decrypt(encoded: String): String {
+        val data = Base64.decode(encoded, Base64.NO_WRAP)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            .apply { init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, data, 0, 12)) }
+        return String(cipher.doFinal(data, 12, data.size - 12))
+    }
 
     val token: String?
         get() = if (System.currentTimeMillis() < prefs.getLong("expiresAt", 0)) prefs.getString("token", null) else null

@@ -6,6 +6,7 @@ import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -27,7 +28,12 @@ class MainActivity : Activity() {
 
     private fun showLogin(error: String? = null) {
         val email = field("Email", InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).apply { setText(session.email) }
-        val password = field("Mot de passe", InputType.TYPE_TEXT_VARIATION_PASSWORD)
+        val password = field("Mot de passe", InputType.TYPE_TEXT_VARIATION_PASSWORD).apply { setText(session.savedPassword) }
+        val remember = CheckBox(this).apply {
+            text = "Se souvenir du mot de passe"
+            setTextColor(Palette.MUTED)
+            isChecked = session.savedPassword != null
+        }
         val code = field("Code de confirmation", InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS).apply { visibility = View.GONE }
         val message = text(error ?: "", 13f, Palette.ERROR)
         val submit = Button(this).apply { text = "Se connecter" }
@@ -37,9 +43,11 @@ class MainActivity : Activity() {
             message.text = ""
             val needCode = code.visibility == View.VISIBLE
             val (e, p, c) = Triple(email.text.toString().trim(), password.text.toString(), code.text.toString().trim())
+            val keep = remember.isChecked
             background {
                 try {
                     val signedIn = if (needCode) { api.loginWithCode(e, p, c); true } else api.login(e, p)
+                    session.savedPassword = if (keep) p else null
                     runOnUiThread {
                         if (signedIn) {
                             showDashboard()
@@ -62,7 +70,7 @@ class MainActivity : Activity() {
                 gravity = Gravity.CENTER_HORIZONTAL
                 addView(text("YouPrice", 28f, Palette.ACCENT, bold = true))
                 addView(text("Identifiez-vous pour accéder à votre espace client.", 14f, Palette.MUTED))
-                addView(email); addView(password); addView(code); addView(message); addView(submit)
+                addView(email); addView(password); addView(remember); addView(code); addView(message); addView(submit)
             })
         })
     }
