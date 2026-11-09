@@ -46,4 +46,4 @@ jobs:
           ls -l youprice.apk
           gh release delete latest --cleanup-tag --yes || true
           gh release create latest youprice.apk --target "$GITHUB_SHA" \
-            --title "Latest build" --notes "APK built from $GITHUB_SHA."
+            --prerelease --title "Latest build" --notes "APK built from $GITHUB_SHA."

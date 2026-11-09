@@ -2,10 +2,10 @@
 
 Lightweight pure-Kotlin Android client that shows the youprice.fr customer dashboard on one page: profile, orders and lines, consumption, invoices and support tickets.
 
-| [![](.github/assets/get-it-on-github.png)](https://github.com/VibedByKaKi/youprice-android/releases/tag/latest) | [![](.github/assets/badge_obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2520%2522net.kaki87.youprice%2522%252C%2520%2522url%2522%253A%2520%2522https%253A%252F%252Fgithub.com%252FVibedByKaKi%252Fyouprice-android%2522%252C%2520%2522author%2522%253A%2520%2522VibedByKaKi%2522%252C%2520%2522name%2522%253A%2520%2522YouPrice%2522%252C%2520%2522preferredApkIndex%2522%253A%25200%252C%2520%2522additionalSettings%2522%253A%2520%2522%257B%255C%2522includePrereleases%255C%2522%253A%2520false%252C%2520%255C%2522fallbackToOlderReleases%255C%2522%253A%2520true%252C%2520%255C%2522apkFilterRegEx%255C%2522%253A%2520%255C%2522.%252A%255C%255C%255C%255C.apk%2524%255C%2522%257D%2522%257D) |
+| [![](.github/assets/get-it-on-github.png)](https://github.com/VibedByKaKi/youprice-android/releases/tag/latest) | [![](.github/assets/badge_obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2520%2522net.kaki87.youprice%2522%252C%2520%2522url%2522%253A%2520%2522https%253A%252F%252Fgithub.com%252FVibedByKaKi%252Fyouprice-android%2522%252C%2520%2522author%2522%253A%2520%2522VibedByKaKi%2522%252C%2520%2522name%2522%253A%2520%2522YouPrice%2522%252C%2520%2522preferredApkIndex%2522%253A%25200%252C%2520%2522additionalSettings%2522%253A%2520%2522%257B%255C%2522includePrereleases%255C%2522%253A%2520true%252C%2520%255C%2522fallbackToOlderReleases%255C%2522%253A%2520true%252C%2520%255C%2522apkFilterRegEx%255C%2522%253A%2520%255C%2522.%252A%255C%255C%255C%255C.apk%2524%255C%2522%257D%2522%257D) |
 | --- | --- |
 
-The APK is a rolling GitHub release on the [`latest`](https://github.com/VibedByKaKi/youprice-android/releases/tag/latest) tag. Direct download: [youprice.apk](https://github.com/VibedByKaKi/youprice-android/releases/latest/download/youprice.apk).
+The APK is a rolling GitHub prerelease on the [`latest`](https://github.com/VibedByKaKi/youprice-android/releases/tag/latest) tag. Direct download: [youprice.apk](https://github.com/VibedByKaKi/youprice-android/releases/download/latest/youprice.apk). In Obtainium, keep **Include pre-releases** on if you add the repo by hand.
 
 ## What this app does
 
