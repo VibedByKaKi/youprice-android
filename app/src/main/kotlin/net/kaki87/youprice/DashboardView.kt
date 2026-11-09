@@ -7,6 +7,41 @@ import org.json.JSONObject
 /** Builds the single-page dashboard: profile, orders and lines, consumption, invoices, support tickets. */
 fun Context.dashboardView(d: Dashboard) = column().apply {
     val c = d.customer
+    addView(card("Mon suivi conso") {
+        note("Votre forfait se réinitialise le 1er de chaque mois.")
+        if (d.lines.isEmpty()) note("Aucune ligne active.")
+        d.lines.forEach { line ->
+            subtitle(line.phone)
+            val categories = line.conso?.arr("categories")
+            if (categories == null || categories.length() == 0) note("Aucune consommation disponible.")
+            categories?.forEachObject { cat ->
+                addView(text(cat.str("libelle"), 14f, Palette.ACCENT, bold = true))
+                cat.arr("sousCategories").forEachObject { sub ->
+                    addView(text(sub.str("libelle"), 13f, Palette.MUTED))
+                    sub.arr("detais").forEachObject { det ->
+                        val ref = det.str("valeurRef")
+                        row("", if (ref.isNotEmpty()) "${det.str("valeur")} / $ref utilisés" else "${det.str("valeur")} ${det.str("libelle")}")
+                    }
+                }
+            }
+        }
+    })
+
+    addView(card("Mon forfait") {
+        if (d.orders.length() == 0) note("Aucune commande.")
+        d.orders.forEachObject { order ->
+            subtitle("Commande ${order.str("reference")}")
+            row("Statut", order.str("status"))
+            row("Date", date(order.str("createDate")))
+            row("Offre", order.str("offres"))
+            row("Total HT", euro(order.optDouble("totaleHTPrice", 0.0)))
+            order.arr("items").forEachObject { item ->
+                divider()
+                orderItem(item, d.lines.find { it.phone == item.str("phoneNumber") })
+            }
+        }
+    })
+
     addView(card("Mes informations") {
         row("Nom", "${c.str("firstName")} ${c.str("lastName")}".trim())
         row("Email", c.str("email"))
@@ -29,41 +64,6 @@ fun Context.dashboardView(d: Dashboard) = column().apply {
                 })
             }
         })
-    })
-
-    addView(card("Mon forfait") {
-        if (d.orders.length() == 0) note("Aucune commande.")
-        d.orders.forEachObject { order ->
-            subtitle("Commande ${order.str("reference")}")
-            row("Statut", order.str("status"))
-            row("Date", date(order.str("createDate")))
-            row("Offre", order.str("offres"))
-            row("Total HT", euro(order.optDouble("totaleHTPrice", 0.0)))
-            order.arr("items").forEachObject { item ->
-                divider()
-                orderItem(item, d.lines.find { it.phone == item.str("phoneNumber") })
-            }
-        }
-    })
-
-    addView(card("Mon suivi conso") {
-        note("Votre forfait se réinitialise le 1er de chaque mois.")
-        if (d.lines.isEmpty()) note("Aucune ligne active.")
-        d.lines.forEach { line ->
-            subtitle(line.phone)
-            val categories = line.conso?.arr("categories")
-            if (categories == null || categories.length() == 0) note("Aucune consommation disponible.")
-            categories?.forEachObject { cat ->
-                addView(text(cat.str("libelle"), 14f, Palette.ACCENT, bold = true))
-                cat.arr("sousCategories").forEachObject { sub ->
-                    addView(text(sub.str("libelle"), 13f, Palette.MUTED))
-                    sub.arr("detais").forEachObject { det ->
-                        val ref = det.str("valeurRef")
-                        row("", if (ref.isNotEmpty()) "${det.str("valeur")} / $ref utilisés" else "${det.str("valeur")} ${det.str("libelle")}")
-                    }
-                }
-            }
-        }
     })
 
     addView(card("Mes factures") {
