@@ -15,6 +15,10 @@ The APK is a rolling GitHub prerelease on the [`latest`](https://github.com/Vibe
 - **Remember password.** The password is stored only if the box is ticked, encrypted with an Android Keystore key.
 - **Read-only.** Invoice PDFs, payments and account changes from the web dashboard are not included.
 
+## Screenshot
+
+![](./screenshot.webp)
+
 ## Build
 
     ./gradlew assembleRelease
